@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BLUESKY RADIO - Administration</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#172554}
+header{background:#082f6b;color:white;padding:22px 16px;text-align:center}
+header h1{margin:0 0 8px;font-size:25px}
+nav{display:flex;flex-wrap:wrap;background:#0b1f43;padding:6px;gap:5px}
+nav button{flex:1;min-width:90px;background:#173d70;color:white;border:0;padding:12px 8px;border-radius:7px}
+main{padding:15px;max-width:850px;margin:auto}
+section{display:none}
+section.active{display:block}
+.card{background:white;padding:17px;margin:12px 0;border-radius:12px;box-shadow:0 2px 8px #0001}
+h2{color:#0b4a91}
+input,textarea,button,select{font:inherit}
+input,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #cbd5e1;border-radius:7px}
+.action{background:#0757b8;color:white;border:0;padding:12px 16px;border-radius:7px;cursor:pointer}
+.item{border-bottom:1px solid #ddd;padding:12px 0;overflow-wrap:anywhere}
+.item img{max-width:100%;border-radius:8px}
+small{color:#64748b}
+footer{text-align:center;padding:20px;color:#64748b}
+audio{width:100%;margin-top:12px}
+</style>
+</head>
+<body>
+<header>
+<h1>📻 BLUESKY RADIO</h1>
+<div>Votre radio communautaire — Lubumbashi, RDC</div>
+<small style="color:#dbeafe">Éduquer • Informer • Former</small>
+</header>
+<nav>
+<button onclick="show('accueil')">Accueil</button>
+<button onclick="show('radio')">Radio</button>
+<button onclick="show('actualites')">Actualités</button>
+<button onclick="show('sports')">Sports</button>
+<button onclick="show('photos')">Photos</button>
+</nav>
+<main>
+<section id="accueil" class="active">
+<div class="card">
+<h2>Bienvenue dans votre panneau</h2>
+<p>BLUESKY RADIO, chaîne communautaire créée en 2019 à Lubumbashi, Haut-Katanga.</p>
+<p>Gérez ici vos actualités, informations sportives et photos.</p>
+</div>
+<div class="card">
+<h2>🔴 Écouter la radio en direct</h2>
+<a href="https://stream.zeno.fm/clkive9b4butv" target="_blank" rel="noopener">Ouvrir le flux radio</a>
+<audio controls preload="none" src="https://stream.zeno.fm/clkive9b4butv">Votre navigateur ne prend pas en charge le lecteur audio.</audio>
+</div>
+</section>
+<section id="radio">
+<div class="card">
+<h2>📻 Diffusion radio</h2>
+<p>BLUESKY RADIO en direct</p>
+<audio controls preload="none" src="https://stream.zeno.fm/clkive9b4butv"></audio>
+<p><a href="https://stream.zeno.fm/clkive9b4butv" target="_blank" rel="noopener">Ouvrir le flux dans le navigateur</a></p>
+</div>
+</section>
+<section id="actualites">
+<div class="card">
+<h2>📰 Publier une actualité</h2>
+<form id="newsForm">
+<input id="newsTitle" placeholder="Titre de l'actualité" required>
+<textarea id="newsText" rows="4" placeholder="Contenu de l'information" required></textarea>
+<input id="newsImage" type="url" placeholder="Lien d'une photo (facultatif)">
+<button class="action">Publier l'actualité</button>
+</form>
+</div>
+<div class="card"><h2>Actualités publiées sur cet appareil</h2><div id="newsList"></div></div>
+</section>
+<section id="sports">
+<div class="card">
+<h2>⚽ Publier une information sportive</h2>
+<form id="sportForm">
+<input id="sportTitle" placeholder="Titre ou rencontre" required>
+<textarea id="sportText" rows="4" placeholder="Résultat, équipe, compétition..." required></textarea>
+<button class="action">Publier le sport</button>
+</form>
+</div>
+<div class="card"><h2>Informations sportives sur cet appareil</h2><div id="sportList"></div></div>
+</section>
+<section id="photos">
+<div class="card">
+<h2>📸 Ajouter une photo</h2>
+<p>Choisissez une photo sur votre téléphone. Elle sera enregistrée localement dans ce navigateur.</p>
+<input id="photoFile" type="file" accept="image/*">
+<input id="photoCaption" placeholder="Légende de la photo">
+<button class="action" onclick="addPhoto()">Enregistrer la photo</button>
+</div>
+<div class="card"><h2>Galerie sur cet appareil</h2><div id="photoList"></div></div>
+</section>
+</main>
+<footer>© BLUESKY RADIO — Lubumbashi, Haut-Katanga, RDC</footer>
+<script>
+const getData=(key)=>{try{return JSON.parse(localStorage.getItem(key)||"[]")}catch(e){return []}};
+const saveData=(key,data)=>localStorage.setItem(key,JSON.stringify(data));
+function show(id){
+document.querySelectorAll("main section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+}
+function render(key,target){
+const list=document.getElementById(target);
+const data=getData(key);
+list.innerHTML="";
+if(!data.length){list.textContent="Aucune publication pour le moment.";return}
+data.slice().reverse().forEach((item,index)=>{
+const div=document.createElement("div");div.className="item";
+const title=document.createElement("h3");title.textContent=item.title||item.caption||"Photo";
+div.appendChild(title);
+if(item.image){const img=document.createElement("img");img.src=item.image;img.alt=item.title||"Photo BLUESKY RADIO";div.appendChild(img)}
+if(item.text){const p=document.createElement("p");p.textContent=item.text;div.appendChild(p)}
+const del=document.createElement("button");del.className="action";del.textContent="Supprimer";
+del.onclick=()=>{if(confirm("Supprimer cet élément ?")){const d=getData(key);d.splice(d.length-1-index,1);saveData(key,d);render(key,target)}};
+div.appendChild(del);list.appendChild(div);
+});
+}
+document.getElementById("newsForm").addEventListener("submit",e=>{
+e.preventDefault();
+const data=getData("bs_news");
+data.push({title:newsTitle.value,text:newsText.value,image:newsImage.value});
+try{saveData("bs_news",data);render("bs_news","newsList");e.target.reset();alert("Actualité enregistrée sur cet appareil.")}catch(err){alert("Espace de stockage insuffisant.")}
+});
+document.getElementById("sportForm").addEventListener("submit",e=>{
+e.preventDefault();
+const data=getData("bs_sports");
+data.push({title:sportTitle.value,text:sportText.value});
+try{saveData("bs_sports",data);render("bs_sports","sportList");e.target.reset();alert("Information sportive enregistrée sur cet appareil.")}catch(err){alert("Espace de stockage insuffisant.")}
+});
+function addPhoto(){
+const file=document.getElementById("photoFile").files[0];
+if(!file){alert("Choisissez d'abord une photo.");return}
+if(file.size>1500000){alert("Cette photo est trop volumineuse. Choisissez une image de moins de 1,5 Mo.");return}
+const reader=new FileReader();
+reader.onload=()=>{
+const data=getData("bs_photos");
+data.push({caption:document.getElementById("photoCaption").value||"Photo BLUESKY RADIO",image:reader.result});
+try{saveData("bs_photos",data);render("bs_photos","photoList");document.getElementById("photoFile").value="";document.getElementById("photoCaption").value="";alert("Photo enregistrée sur cet appareil.")}catch(e){alert("Espace de stockage insuffisant.")}
+};
+reader.readAsDataURL(file);
+}
+render("bs_news","newsList");
+render("bs_sports","sportList");
+render("bs_photos","photoList");
+</script>
+</body>
+</html>
