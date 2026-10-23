@@ -1,0 +1,16 @@
+{
+  "name": "bluesky-radio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BLUESKY RADIO — radio en direct et actualités communautaires",
+  "scripts": {
+    "build": "echo Static web app ready",
+    "android:add": "cap add android",
+    "android:sync": "cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0"
+  }
+}
